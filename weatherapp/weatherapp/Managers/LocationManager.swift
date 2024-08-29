@@ -8,26 +8,27 @@
 import Foundation
 import CoreLocation
 
-// A class to manage the location of the user
-class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
-    private let locationManager = CLLocationManager()
+class LocationManager: NSObject, CLLocationManagerDelegate, ObservableObject {
+    static let shared = LocationManager()
+    private let manager = CLLocationManager()
+    @Published var authorizationStatus: CLAuthorizationStatus = .notDetermined
     @Published var location: CLLocation?
-    @Published var authorizationStatus: CLAuthorizationStatus?
-
-    override init() {
+    
+    private override init() {
         super.init()
-        self.locationManager.delegate = self
-        self.locationManager.desiredAccuracy = kCLLocationAccuracyBest
-        self.locationManager.requestWhenInUseAuthorization()
-        self.locationManager.startUpdatingLocation()
+        manager.delegate = self
+        manager.desiredAccuracy = kCLLocationAccuracyBest
+        manager.requestWhenInUseAuthorization()
+        manager.startUpdatingLocation()
     }
-
+    
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         if let location = locations.last {
+            print("Location: \(location)")
             self.location = location
         }
     }
-
+    
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         self.authorizationStatus = status
     }

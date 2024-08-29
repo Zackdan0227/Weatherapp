@@ -7,9 +7,12 @@
 
 import Foundation
 
+import Foundation
+
 struct WeatherResponse: Codable {
     let current_weather: CurrentWeather
     let daily: DailyForecast
+    let hourly: HourlyForecast
 }
 
 struct CurrentWeather: Codable {
@@ -25,3 +28,8 @@ struct DailyForecast: Codable {
     let weathercode: [Int]
 }
 
+struct HourlyForecast: Codable {
+    let time: [String]
+    let temperature_2m: [Double]
+    let weathercode: [Int]
+}

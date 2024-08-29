@@ -14,12 +14,10 @@
 		D96EDBE52C7F44F4009A9B76 /* weatherapp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D96EDBE42C7F44F4009A9B76 /* weatherapp.swift */; };
 		D96EDBE72C7F4528009A9B76 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D96EDBE62C7F4528009A9B76 /* ContentView.swift */; };
 		D96EDBE92C7F4C05009A9B76 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D96EDBE82C7F4C05009A9B76 /* LocationManager.swift */; };
-		D96EDBEC2C7F50DA009A9B76 /* SVGKit in Frameworks */ = {isa = PBXBuildFile; productRef = D96EDBEB2C7F50DA009A9B76 /* SVGKit */; };
-		D96EDBEE2C7F50DA009A9B76 /* SVGKitSwift in Frameworks */ = {isa = PBXBuildFile; productRef = D96EDBED2C7F50DA009A9B76 /* SVGKitSwift */; };
 		D96EDBF12C7F51EA009A9B76 /* WeatherModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = D96EDBF02C7F51EA009A9B76 /* WeatherModels.swift */; };
 		D96EDBF52C7F5268009A9B76 /* WeatherAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = D96EDBF42C7F5268009A9B76 /* WeatherAPI.swift */; };
-		D96EDBF72C7F5294009A9B76 /* SVGMapping.swift in Sources */ = {isa = PBXBuildFile; fileRef = D96EDBF62C7F5294009A9B76 /* SVGMapping.swift */; };
-		D96EDBF92C7F5448009A9B76 /* SVGKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = D96EDBF82C7F5448009A9B76 /* SVGKit.swift */; };
+		D96EDBFB2C8053AF009A9B76 /* WeatherDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D96EDBFA2C8053AF009A9B76 /* WeatherDetailView.swift */; };
+		D96EDBFD2C80675D009A9B76 /* TimeZoneManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D96EDBFC2C80675D009A9B76 /* TimeZoneManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -53,8 +51,8 @@
 		D96EDBE82C7F4C05009A9B76 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
 		D96EDBF02C7F51EA009A9B76 /* WeatherModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherModels.swift; sourceTree = "<group>"; };
 		D96EDBF42C7F5268009A9B76 /* WeatherAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherAPI.swift; sourceTree = "<group>"; };
-		D96EDBF62C7F5294009A9B76 /* SVGMapping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SVGMapping.swift; sourceTree = "<group>"; };
-		D96EDBF82C7F5448009A9B76 /* SVGKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SVGKit.swift; sourceTree = "<group>"; };
+		D96EDBFA2C8053AF009A9B76 /* WeatherDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherDetailView.swift; sourceTree = "<group>"; };
+		D96EDBFC2C80675D009A9B76 /* TimeZoneManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeZoneManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -62,8 +60,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D96EDBEE2C7F50DA009A9B76 /* SVGKitSwift in Frameworks */,
-				D96EDBEC2C7F50DA009A9B76 /* SVGKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -113,6 +109,7 @@
 				D96EDBC22C7F42DB009A9B76 /* Info.plist */,
 				D96EDBE42C7F44F4009A9B76 /* weatherapp.swift */,
 				D96EDBE62C7F4528009A9B76 /* ContentView.swift */,
+				D96EDBFA2C8053AF009A9B76 /* WeatherDetailView.swift */,
 				D96EDBF32C7F5250009A9B76 /* Util */,
 			);
 			path = weatherapp;
@@ -147,6 +144,7 @@
 			isa = PBXGroup;
 			children = (
 				D96EDBE82C7F4C05009A9B76 /* LocationManager.swift */,
+				D96EDBFC2C80675D009A9B76 /* TimeZoneManager.swift */,
 			);
 			path = Managers;
 			sourceTree = "<group>";
@@ -155,8 +153,6 @@
 			isa = PBXGroup;
 			children = (
 				D96EDBF42C7F5268009A9B76 /* WeatherAPI.swift */,
-				D96EDBF62C7F5294009A9B76 /* SVGMapping.swift */,
-				D96EDBF82C7F5448009A9B76 /* SVGKit.swift */,
 			);
 			path = Util;
 			sourceTree = "<group>";
@@ -178,8 +174,6 @@
 			);
 			name = weatherapp;
 			packageProductDependencies = (
-				D96EDBEB2C7F50DA009A9B76 /* SVGKit */,
-				D96EDBED2C7F50DA009A9B76 /* SVGKitSwift */,
 			);
 			productName = weatherapp;
 			productReference = D96EDBB12C7F42DA009A9B76 /* weatherapp.app */;
@@ -255,7 +249,6 @@
 			);
 			mainGroup = D96EDBA82C7F42DA009A9B76;
 			packageReferences = (
-				D96EDBEA2C7F50DA009A9B76 /* XCRemoteSwiftPackageReference "SVGKit" */,
 			);
 			productRefGroup = D96EDBB22C7F42DA009A9B76 /* Products */;
 			projectDirPath = "";
@@ -298,13 +291,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D96EDBFD2C80675D009A9B76 /* TimeZoneManager.swift in Sources */,
+				D96EDBFB2C8053AF009A9B76 /* WeatherDetailView.swift in Sources */,
 				D96EDBE72C7F4528009A9B76 /* ContentView.swift in Sources */,
-				D96EDBF92C7F5448009A9B76 /* SVGKit.swift in Sources */,
 				D96EDBE52C7F44F4009A9B76 /* weatherapp.swift in Sources */,
 				D96EDBF12C7F51EA009A9B76 /* WeatherModels.swift in Sources */,
 				D96EDBF52C7F5268009A9B76 /* WeatherAPI.swift in Sources */,
 				D96EDBE92C7F4C05009A9B76 /* LocationManager.swift in Sources */,
-				D96EDBF72C7F5294009A9B76 /* SVGMapping.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -393,7 +386,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -450,7 +443,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -641,30 +634,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		D96EDBEA2C7F50DA009A9B76 /* XCRemoteSwiftPackageReference "SVGKit" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/SVGKit/SVGKit";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 3.0.0;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		D96EDBEB2C7F50DA009A9B76 /* SVGKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = D96EDBEA2C7F50DA009A9B76 /* XCRemoteSwiftPackageReference "SVGKit" */;
-			productName = SVGKit;
-		};
-		D96EDBED2C7F50DA009A9B76 /* SVGKitSwift */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = D96EDBEA2C7F50DA009A9B76 /* XCRemoteSwiftPackageReference "SVGKit" */;
-			productName = SVGKitSwift;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = D96EDBA92C7F42DA009A9B76 /* Project object */;
 }
