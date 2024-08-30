@@ -8,7 +8,7 @@ struct WeatherDetailView: View {
     @StateObject private var timeZoneManager = TimeZoneManager()
     @State private var isLoading = true
     @State private var cityTimeZone: TimeZone = .current // Adjust to city's time zone
-
+    
     var body: some View {
         VStack {
             if isLoading {
@@ -22,7 +22,7 @@ struct WeatherDetailView: View {
                 Text("Local Time: \(formatCurrentTime())")
                     .font(.subheadline)
                     .padding(.bottom)
-
+                
                 // Current weather
                 VStack(spacing: 10) {
                     Text("Current Temperature")
@@ -37,15 +37,15 @@ struct WeatherDetailView: View {
                     }
                 }
                 .padding()
-
+                
                 // Hourly weather scroll view
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 15) {
-                        ForEach(weatherResponse.hourly.time.indices, id: \.self) { index in
+                        ForEach(filteredHourlyIndices, id: \.self) { index in
                             VStack(spacing: 10) {
-                                Text(formatHour(weatherResponse.hourly.time[index]))
+                                Text(formatHour(weatherResponse.hourly.time[index] ))
                                     .font(.caption)
-                                Image(systemName: weatherIcon(for: weatherResponse.hourly.weathercode[index]))
+                                Image(systemName: weatherIcon(for: weatherResponse.hourly.weathercode[index] ))
                                     .resizable()
                                     .scaledToFit()
                                     .frame(width: 30, height: 30)
@@ -60,7 +60,7 @@ struct WeatherDetailView: View {
                     .padding(.horizontal)
                 }
                 .padding(.top)
-
+                
                 // 5-Day Forecast
                 VStack(spacing: 10) {
                     Text("5-Day Forecast")
@@ -92,7 +92,7 @@ struct WeatherDetailView: View {
                     .font(.headline)
                     .padding()
             }
-
+            
             Spacer()
         }
         .navigationTitle("Weather Details")
@@ -101,13 +101,45 @@ struct WeatherDetailView: View {
             fetchWeather()
         }
     }
+    private var filteredHourlyIndices: [Int] {
+        guard let hourlyTimes = weatherResponse?.hourly.time else { return [] }
 
+        let now = Date()
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm" // Ensure this matches your input format exactly.
+        dateFormatter.timeZone = cityTimeZone // Set to city's time zone
+
+        // Format the current date/time to the city's time zone and parse it back to a Date
+        if let localNow = dateFormatter.date(from: dateFormatter.string(from: now)) {
+            var calendar = Calendar.current
+            calendar.timeZone = cityTimeZone
+
+            return hourlyTimes.indices.filter { index in
+                if let date = customDateFormatter().date(from: hourlyTimes[index]) {
+                    return date >= localNow && calendar.isDateInToday(date)
+                }
+                return false
+            }
+        }
+
+        return [] // Return an empty array if conversion fails
+    }
+    private func customDateFormatter() -> DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm"
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = cityTimeZone
+        return formatter
+    }
+    
     func fetchWeather() {
         if let city = self.city {
             if city != ""{
                 geocodeCityName(cityName: city) { location in
-                    if let location = location {
-                        fetchWeatherData(for: location)
+                    if location?.coordinate.latitude != 0.0 && location?.coordinate.longitude != 0.0 {
+                        fetchWeatherData(for: location ?? CLLocation(latitude: 0, longitude: 0))
+                        reverseGeocodeLocation(location: location ?? CLLocation(latitude: 0, longitude: 0))
+
                     } else {
                         isLoading = false
                     }
@@ -139,7 +171,7 @@ struct WeatherDetailView: View {
                 self.isLoading = false
                 return
             }
-
+            self.cityTimeZone = placemark.timeZone ?? .current
             if let city = placemark.locality {
                 self.city = city // Update the city name based on the coordinates
                 fetchWeatherData(for: location)
@@ -149,7 +181,7 @@ struct WeatherDetailView: View {
             }
         }
     }
-
+    
     func fetchWeatherData(for location: CLLocation) {
         print("Fetching weather for \(location.coordinate.latitude), \(location.coordinate.longitude)")
         isLoading = true
@@ -165,31 +197,39 @@ struct WeatherDetailView: View {
             }
         }
     }
-
+    
     func geocodeCityName(cityName: String, completion: @escaping (CLLocation?) -> Void) {
         let geocoder = CLGeocoder()
         geocoder.geocodeAddressString(cityName) { placemarks, error in
             completion(placemarks?.first?.location)
         }
     }
-
+    
     func formatHour(_ isoDate: String) -> String {
-        let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withInternetDateTime]
-        formatter.timeZone = TimeZone(secondsFromGMT: 0) // Parse as UTC
-        if let date = formatter.date(from: isoDate) {
-            let hourFormatter = DateFormatter()
-            hourFormatter.dateFormat = "ha" // e.g., 3PM
-            hourFormatter.timeZone = cityTimeZone
-            return hourFormatter.string(from: date)
+        // Create a formatter for ISO 8601
+        let isoFormatter = DateFormatter()
+        isoFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm"
+        isoFormatter.locale = Locale(identifier: "en_US_POSIX")
+        isoFormatter.timeZone = cityTimeZone// Assuming the ISO date is in UTC
+        
+        // Check if the date can be parsed
+        if let date = isoFormatter.date(from: isoDate) {
+            // Create a formatter for the desired output
+            let outputFormatter = DateFormatter()
+            outputFormatter.dateFormat = "h:mm a" // Example: "9:00 AM"
+            outputFormatter.timeZone = cityTimeZone// Adjust to current timezone or set a specific one
+            return outputFormatter.string(from: date)
+        } else {
+            print("Failed to parse date: \(isoDate)")
+            return "Invalid date"
         }
-        return ""
     }
-
+    
+    
     func formatDay(_ isoDate: String) -> String {
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withFullDate]
-        formatter.timeZone = TimeZone(secondsFromGMT: 0) // Parse as UTC
+        formatter.timeZone = cityTimeZone // Parse as UTC
         if let date = formatter.date(from: isoDate) {
             let dayFormatter = DateFormatter()
             dayFormatter.dateFormat = "EEEE" // e.g., Monday
@@ -198,25 +238,25 @@ struct WeatherDetailView: View {
         }
         return ""
     }
-
+    
     func formatCurrentTime() -> String {
         let dateFormatter = DateFormatter()
         dateFormatter.timeZone = cityTimeZone
         dateFormatter.dateFormat = "EEE, MMM d, h:mm a" // e.g., Mon, Aug 29, 3:45 PM
         return dateFormatter.string(from: Date())
     }
-
+    
     func weatherIcon(for code: Int) -> String {
         switch code {
-            case 0: return "sun.max.fill"
-            case 1, 2, 3: return "cloud.sun.fill"
-            case 45, 48: return "cloud.fog.fill"
-            case 51, 53, 55: return "cloud.drizzle.fill"
-            case 61, 63, 65: return "cloud.rain.fill"
-            case 71, 73, 75: return "cloud.snow.fill"
-            case 80, 81, 82: return "cloud.heavyrain.fill"
-            case 95, 96, 99: return "cloud.bolt.rain.fill"
-            default: return "cloud.fill"
+        case 0: return "sun.max.fill"
+        case 1, 2, 3: return "cloud.sun.fill"
+        case 45, 48: return "cloud.fog.fill"
+        case 51, 53, 55: return "cloud.drizzle.fill"
+        case 61, 63, 65: return "cloud.rain.fill"
+        case 71, 73, 75: return "cloud.snow.fill"
+        case 80, 81, 82: return "cloud.heavyrain.fill"
+        case 95, 96, 99: return "cloud.bolt.rain.fill"
+        default: return "cloud.fill"
         }
     }
 }
