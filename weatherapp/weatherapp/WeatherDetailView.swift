@@ -30,7 +30,6 @@ struct WeatherDetailView: View {
                     Text(selectedHourIndex == nil ? "Current Temperature" : "Temperature at \(formatHour(weatherResponse.hourly.time[selectedHourIndex ?? 0]))")
                         .font(.headline)
                     HStack(spacing: 20) {
-                        if selectedHourIndex != nil {
                             let hour = getHour(from: weatherResponse.hourly.time[selectedHourIndex ?? 0]) // Extract the hour from the time string
                             let isDaytime = hour >= 6 && hour < 18 // Determine if it’s daytime
                             Image(systemName: weatherIcon(for: selectedWeatherCode, isDaytime: isDaytime))
@@ -39,7 +38,7 @@ struct WeatherDetailView: View {
                                 .frame(width: 50, height: 50)
                             Text("\(selectedTemperature, specifier: "%.1f")°C")
                                 .font(.system(size: 50, weight: .bold))
-                        }
+                        
                     }
                 }
                 .padding()
@@ -157,16 +156,11 @@ struct WeatherDetailView: View {
         
         return [] // Return an empty array if conversion fails
     }
-    private func customDateFormatter() -> DateFormatter {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm"
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.timeZone = cityTimeZone
-        return formatter
-    }
     
+    //helper funciton
     func fetchWeather() {
         if let city = self.city {
+            //a empty city names means we should locate the user
             if city != ""{
                 geocodeCityName(cityName: city) { location in
                     if location?.coordinate.latitude != 0.0 && location?.coordinate.longitude != 0.0 {
@@ -191,29 +185,7 @@ struct WeatherDetailView: View {
         }
     }
     
-    func reverseGeocodeLocation(location: CLLocation) {
-        if location == CLLocation(latitude: 0, longitude: 0) {
-            print("Invalid location")
-            self.isLoading = false
-            return
-        }
-        let geocoder = CLGeocoder()
-        geocoder.reverseGeocodeLocation(location) { placemarks, error in
-            guard let placemark = placemarks?.first, error == nil else {
-                print("Reverse geocoding failed: \(error!.localizedDescription)")
-                self.isLoading = false
-                return
-            }
-            self.cityTimeZone = placemark.timeZone ?? .current
-            if let city = placemark.locality {
-                self.city = city // Update the city name based on the coordinates
-                fetchWeatherData(for: location)
-            } else {
-                print("City name could not be found")
-                self.isLoading = false
-            }
-        }
-    }
+   
     
     func fetchWeatherData(for location: CLLocation) {
         print("Fetching weather for \(location.coordinate.latitude), \(location.coordinate.longitude)")
@@ -230,55 +202,49 @@ struct WeatherDetailView: View {
             }
         }
     }
-    
+
+}
+
+// MARK: - Extensions
+//This extension contains the geocoding and reverse geocoding methods
+extension WeatherDetailView {
+    //corrects city name from user's input
     func geocodeCityName(cityName: String, completion: @escaping (CLLocation?) -> Void) {
         let geocoder = CLGeocoder()
         geocoder.geocodeAddressString(cityName) { placemarks, error in
             completion(placemarks?.first?.location)
         }
     }
-    
-    func formatHour(_ isoDate: String) -> String {
-        // Create a formatter for ISO 8601
-        let isoFormatter = DateFormatter()
-        isoFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm"
-        isoFormatter.locale = Locale(identifier: "en_US_POSIX")
-        isoFormatter.timeZone = cityTimeZone// Assuming the ISO date is in UTC
-        
-        // Check if the date can be parsed
-        if let date = isoFormatter.date(from: isoDate) {
-            // Create a formatter for the desired output
-            let outputFormatter = DateFormatter()
-            outputFormatter.dateFormat = "h:mm a" // Example: "9:00 AM"
-            outputFormatter.timeZone = cityTimeZone// Adjust to current timezone or set a specific one
-            return outputFormatter.string(from: date)
-        } else {
-            print("Failed to parse date: \(isoDate)")
-            return "Invalid date"
+    //reverses geocode location to get city name
+    func reverseGeocodeLocation(location: CLLocation) {
+        if location == CLLocation(latitude: 0, longitude: 0) {
+            print("Invalid location")
+            self.isLoading = false
+            return
+        }
+        let geocoder = CLGeocoder()
+        geocoder.reverseGeocodeLocation(location) { placemarks, error in
+            guard let placemark = placemarks?.first, error == nil else {
+                print("Reverse geocoding failed: \(error!.localizedDescription)")
+                self.isLoading = false
+                return
+            }
+            //update city time zone
+            self.cityTimeZone = placemark.timeZone ?? .current
+            if let city = placemark.locality {
+                self.city = city // Update the city name based on the coordinates
+                fetchWeatherData(for: location)
+            } else {
+                print("City name could not be found")
+                self.isLoading = false
+            }
         }
     }
-    
-    
-    func formatDay(_ isoDate: String) -> String {
-        let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withFullDate]
-        formatter.timeZone = cityTimeZone // Parse as UTC
-        if let date = formatter.date(from: isoDate) {
-            let dayFormatter = DateFormatter()
-            dayFormatter.dateFormat = "EEEE" // e.g., Monday
-            dayFormatter.timeZone = cityTimeZone
-            return dayFormatter.string(from: date)
-        }
-        return ""
-    }
-    
-    func formatCurrentTime() -> String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.timeZone = cityTimeZone
-        dateFormatter.dateFormat = "EEE, MMM d, h:mm a" // e.g., Mon, Aug 29, 3:45 PM
-        return dateFormatter.string(from: Date())
-    }
-    
+}
+
+extension WeatherDetailView {
+    //neat Apple's SF Symbols for weather icons
+    //param: code - weather code, isDaytime - if it's daytime
     func weatherIcon(for code: Int, isDaytime: Bool) -> String {
         switch code {
         case 0:
@@ -301,7 +267,29 @@ struct WeatherDetailView: View {
             return "cloud.fill"
         }
     }
+}
 
+//formatting time methods
+extension WeatherDetailView{
+    func formatDay(_ isoDate: String) -> String {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withFullDate]
+        formatter.timeZone = cityTimeZone // Parse as UTC
+        if let date = formatter.date(from: isoDate) {
+            let dayFormatter = DateFormatter()
+            dayFormatter.dateFormat = "EEEE" // e.g., Monday
+            dayFormatter.timeZone = cityTimeZone
+            return dayFormatter.string(from: date)
+        }
+        return ""
+    }
+    
+    func formatCurrentTime() -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.timeZone = cityTimeZone
+        dateFormatter.dateFormat = "EEE, MMM d, h:mm a" // e.g., Mon, Aug 29, 3:45 PM
+        return dateFormatter.string(from: Date())
+    }
     
     func getHour(from isoDate: String) -> Int {
         let isoFormatter = DateFormatter()
@@ -317,5 +305,31 @@ struct WeatherDetailView: View {
 
         return 0 // Default to 0 if parsing fails
     }
-
+    
+    func formatHour(_ isoDate: String) -> String {
+        // Create a formatter for ISO 8601
+        let isoFormatter = DateFormatter()
+        isoFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm"
+        isoFormatter.locale = Locale(identifier: "en_US_POSIX")
+        isoFormatter.timeZone = cityTimeZone
+        
+        // Check if the date can be parsed
+        if let date = isoFormatter.date(from: isoDate) {
+            // Create a formatter for the desired output
+            let outputFormatter = DateFormatter()
+            outputFormatter.dateFormat = "h:mm a" // Example: "9:00 AM"
+            outputFormatter.timeZone = cityTimeZone
+            return outputFormatter.string(from: date)
+        } else {
+            print("Failed to parse date: \(isoDate)")
+            return "Invalid date"
+        }
+    }
+    func customDateFormatter() -> DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm"
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = cityTimeZone
+        return formatter
+    }
 }

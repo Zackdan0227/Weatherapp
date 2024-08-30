@@ -6,18 +6,18 @@ struct ContentView: View {
     @State private var showWeather = false
     @StateObject private var locationManager = LocationManager.shared
     @State private var searchCity: String?
+    @State private var showInfo = false
 
     var body: some View {
         NavigationStack {
             VStack {
-                Spacer()
-
                 // Search Bar
                 TextField("Search for a city...", text: $searchText)
                     .padding()
                     .background(Color(.systemGray6))
                     .cornerRadius(8)
                     .padding(.horizontal)
+                    .padding(.top, 30)
 
                 // Search and Locate Me Buttons
                 HStack {
@@ -47,11 +47,24 @@ struct ContentView: View {
                 .padding()
 
                 Spacer()
+                
+                Button(action:{
+                    showInfo = true
+                }){
+                    Text("About PMA")
+                        .foregroundColor(.white)
+                        .padding()
+                        .background(Color.orange)
+                        .cornerRadius(8)
+                }
             }
-            .navigationTitle("Weather")
+            .navigationTitle("Kedan Zha's Weather App 🌦️")
             .navigationBarTitleDisplayMode(.inline)
             .navigationDestination(isPresented: $showWeather) {
                 WeatherDetailView(city: $searchCity)
+            }
+            .navigationDestination(isPresented: $showInfo) {
+                PMAInfoVIew()
             }
         }
     }

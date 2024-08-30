@@ -18,6 +18,7 @@
 		D96EDBF52C7F5268009A9B76 /* WeatherAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = D96EDBF42C7F5268009A9B76 /* WeatherAPI.swift */; };
 		D96EDBFB2C8053AF009A9B76 /* WeatherDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D96EDBFA2C8053AF009A9B76 /* WeatherDetailView.swift */; };
 		D96EDBFD2C80675D009A9B76 /* TimeZoneManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D96EDBFC2C80675D009A9B76 /* TimeZoneManager.swift */; };
+		D96EDBFF2C81C59A009A9B76 /* PMAInfoVIew.swift in Sources */ = {isa = PBXBuildFile; fileRef = D96EDBFE2C81C59A009A9B76 /* PMAInfoVIew.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -53,6 +54,7 @@
 		D96EDBF42C7F5268009A9B76 /* WeatherAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherAPI.swift; sourceTree = "<group>"; };
 		D96EDBFA2C8053AF009A9B76 /* WeatherDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherDetailView.swift; sourceTree = "<group>"; };
 		D96EDBFC2C80675D009A9B76 /* TimeZoneManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeZoneManager.swift; sourceTree = "<group>"; };
+		D96EDBFE2C81C59A009A9B76 /* PMAInfoVIew.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PMAInfoVIew.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -110,6 +112,7 @@
 				D96EDBE42C7F44F4009A9B76 /* weatherapp.swift */,
 				D96EDBE62C7F4528009A9B76 /* ContentView.swift */,
 				D96EDBFA2C8053AF009A9B76 /* WeatherDetailView.swift */,
+				D96EDBFE2C81C59A009A9B76 /* PMAInfoVIew.swift */,
 				D96EDBF32C7F5250009A9B76 /* Util */,
 			);
 			path = weatherapp;
@@ -292,6 +295,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D96EDBFD2C80675D009A9B76 /* TimeZoneManager.swift in Sources */,
+				D96EDBFF2C81C59A009A9B76 /* PMAInfoVIew.swift in Sources */,
 				D96EDBFB2C8053AF009A9B76 /* WeatherDetailView.swift in Sources */,
 				D96EDBE72C7F4528009A9B76 /* ContentView.swift in Sources */,
 				D96EDBE52C7F44F4009A9B76 /* weatherapp.swift in Sources */,
