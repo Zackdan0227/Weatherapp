@@ -7,8 +7,9 @@ struct WeatherDetailView: View {
     @StateObject private var locationManager = LocationManager.shared
     @StateObject private var timeZoneManager = TimeZoneManager()
     @State private var isLoading = true
-    @State private var cityTimeZone: TimeZone = .current // Adjust to city's time zone
-    @State private var selectedHourIndex: Int? // State to track the selected hour index
+    @State private var cityTimeZone: TimeZone = .current
+    @State private var selectedHourIndex: Int?
+    @State private var isCelsius: Bool = true // Track whether to display Celsius or Fahrenheit
     
     var body: some View {
         VStack {
@@ -16,42 +17,39 @@ struct WeatherDetailView: View {
                 ProgressView("Fetching weather...")
                     .padding()
             } else if let weatherResponse = weatherResponse {
-                // Display city name and current date/time
+                
                 Text(city ?? "Current Location")
                     .font(.largeTitle)
                     .padding(.top)
+                
                 Text("Local Time: \(formatCurrentTime())")
                     .font(.subheadline)
                     .padding(.bottom)
                 
-                
-                // Current weather display and selected hour display
                 VStack(spacing: 10) {
                     Text(selectedHourIndex == nil ? "Current Temperature" : "Temperature at \(formatHour(weatherResponse.hourly.time[selectedHourIndex ?? 0]))")
                         .font(.headline)
                     HStack(spacing: 20) {
-                            let hour = getHour(from: weatherResponse.hourly.time[selectedHourIndex ?? 0]) // Extract the hour from the time string
-                            let isDaytime = hour >= 6 && hour < 18 // Determine if it’s daytime
-                            Image(systemName: weatherIcon(for: selectedWeatherCode, isDaytime: isDaytime))
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 50, height: 50)
-                            Text("\(selectedTemperature, specifier: "%.1f")°C")
-                                .font(.system(size: 50, weight: .bold))
-                        
+                        let hour = getHour(from: weatherResponse.hourly.time[selectedHourIndex ?? 0])
+                        let isDaytime = hour >= 6 && hour < 18
+                        Image(systemName: weatherIcon(for: selectedWeatherCode, isDaytime: isDaytime))
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 50, height: 50)
+                        Text("\(selectedTemperature, specifier: "%.1f")°\(isCelsius ? "C" : "F")")
+                            .font(.system(size: 50, weight: .bold))
                     }
                 }
                 .padding()
                 
-                // Hourly weather scroll view
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 15) {
                         ForEach(filteredHourlyIndices, id: \.self) { index in
-                            let hour = getHour(from: weatherResponse.hourly.time[index]) // Extract the hour from the time string
-                            let isDaytime = hour >= 6 && hour < 18 // Determine if it’s daytime
-
+                            let hour = getHour(from: weatherResponse.hourly.time[index])
+                            let isDaytime = hour >= 6 && hour < 18
+                            
                             Button(action: {
-                                self.selectedHourIndex = index // Update selected index on tap
+                                self.selectedHourIndex = index
                             }) {
                                 VStack(spacing: 10) {
                                     Text(formatHour(weatherResponse.hourly.time[index]))
@@ -60,7 +58,7 @@ struct WeatherDetailView: View {
                                         .resizable()
                                         .scaledToFit()
                                         .frame(width: 30, height: 30)
-                                    Text("\(weatherResponse.hourly.temperature_2m[index], specifier: "%.1f")°C")
+                                    Text("\(convertedTemperature(weatherResponse.hourly.temperature_2m[index]), specifier: "%.1f")°\(isCelsius ? "C" : "F")")
                                         .font(.caption)
                                 }
                                 .padding()
@@ -76,7 +74,6 @@ struct WeatherDetailView: View {
                     .padding(.horizontal)
                 }
                 
-                // 5-Day Forecast
                 VStack(spacing: 10) {
                     Text("5-Day Forecast")
                         .font(.headline)
@@ -85,16 +82,15 @@ struct WeatherDetailView: View {
                             Text(formatDay(weatherResponse.daily.time[index]))
                                 .font(.system(size: 16, weight: .medium))
                             Spacer()
-                            //Display daytime weather always for 5-day forcast
                             Image(systemName: weatherIcon(for: weatherResponse.daily.weathercode[index], isDaytime: true))
                                 .resizable()
                                 .scaledToFit()
                                 .frame(width: 25, height: 25)
-                            Text("\(weatherResponse.daily.temperature_2m_max[index], specifier: "%.1f")°C")
+                            Text("\(convertedMaxTemperature(index), specifier: "%.1f")°\(isCelsius ? "C" : "F")")
                                 .font(.system(size: 16))
                             Text("/")
                                 .foregroundColor(.gray)
-                            Text("\(weatherResponse.daily.temperature_2m_min[index], specifier: "%.1f")°C")
+                            Text("\(convertedMinTemperature(index), specifier: "%.1f")°\(isCelsius ? "C" : "F")")
                                 .font(.system(size: 16))
                                 .foregroundColor(.gray)
                         }
@@ -103,12 +99,21 @@ struct WeatherDetailView: View {
                     }
                 }
                 .padding()
+                Button(action: {
+                    isCelsius.toggle()
+                }) {
+                    Text(isCelsius ? "Switch to °F" : "Switch to °C")
+                        .foregroundColor(.blue)
+                        .padding()
+                        .background(Color(.systemGray5))
+                        .cornerRadius(8)
+                }
             } else {
                 Text("Unable to fetch weather data.")
                     .font(.headline)
                     .padding()
             }
-            
+           
             Spacer()
         }
         .navigationTitle("Weather Details")
@@ -121,9 +126,9 @@ struct WeatherDetailView: View {
     // Computed properties to return selected weather details
     var selectedTemperature: Double {
         if let index = selectedHourIndex {
-            return weatherResponse?.hourly.temperature_2m[index] ?? weatherResponse?.current_weather.temperature ?? 0.0
+            return convertedTemperature(weatherResponse?.hourly.temperature_2m[index] ?? 0.0)
         }
-        return weatherResponse?.current_weather.temperature ?? 0.0
+        return convertedTemperature(weatherResponse?.current_weather.temperature ?? 0.0)
     }
     
     var selectedWeatherCode: Int {
@@ -132,6 +137,24 @@ struct WeatherDetailView: View {
         }
         return weatherResponse?.current_weather.weathercode ?? 0
     }
+    
+    // Convert temperature based on the selected unit
+    private func convertedTemperature(_ temperature: Double) -> Double {
+        return isCelsius ? temperature : (temperature * 9/5) + 32
+    }
+    
+    // Convert max temperature for the 5-day forecast
+    private func convertedMaxTemperature(_ index: Int) -> Double {
+        let temperature = weatherResponse?.daily.temperature_2m_max[index] ?? 0.0
+        return isCelsius ? temperature : (temperature * 9/5) + 32
+    }
+    
+    // Convert min temperature for the 5-day forecast
+    private func convertedMinTemperature(_ index: Int) -> Double {
+        let temperature = weatherResponse?.daily.temperature_2m_min[index] ?? 0.0
+        return isCelsius ? temperature : (temperature * 9/5) + 32
+    }
+    
     
     private var filteredHourlyIndices: [Int] {
         guard let hourlyTimes = weatherResponse?.hourly.time else { return [] }
@@ -185,7 +208,7 @@ struct WeatherDetailView: View {
         }
     }
     
-   
+    
     
     func fetchWeatherData(for location: CLLocation) {
         print("Fetching weather for \(location.coordinate.latitude), \(location.coordinate.longitude)")
@@ -202,7 +225,7 @@ struct WeatherDetailView: View {
             }
         }
     }
-
+    
 }
 
 // MARK: - Extensions
@@ -296,13 +319,13 @@ extension WeatherDetailView{
         isoFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm"
         isoFormatter.locale = Locale(identifier: "en_US_POSIX")
         isoFormatter.timeZone = cityTimeZone
-
+        
         if let date = isoFormatter.date(from: isoDate) {
             var calendar = Calendar.current
             calendar.timeZone = cityTimeZone
             return calendar.component(.hour, from: date)
         }
-
+        
         return 0 // Default to 0 if parsing fails
     }
     
